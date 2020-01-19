@@ -8,17 +8,20 @@ import { useScore } from '../../hooks/useScore';
 
 const Choice = ({ choice, questionId }) => {
   const { label, id, isCorrect } = choice;
-  const { score, scoreUp, updateAnswers } = useScore();
+  const { score, scoreUp, answers, updateAnswers } = useScore();
+  const givenAnswer = answers[questionId] && answers[questionId].choiceId;
+
   return (
-    <Button variant="text" style={{ width: '100%' }} onClick={() => updateAnswers({ questionId: questionId, id })}>
+    <Button
+      variant="text" style={{ width: '100%', backgroundColor: (givenAnswer === id) ? '#009688' : '' }}
+      onClick={() => updateAnswers(questionId, id)}
+    >
       <Checkbox
+        checked={givenAnswer === id}
         value="checkedB"
-        color="primary"
+        color="#00695c"
       />
       <Typography variant="p" align="left" >{label}</Typography>
-      {
-        isCorrect && <Typography variant="p" align="left" >correct answer</Typography>
-      }
     </Button>
   )
 }

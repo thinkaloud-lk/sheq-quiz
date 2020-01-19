@@ -4,23 +4,31 @@ import { questions } from '../models/mock';
 const scoreContext = React.createContext();
 
 const ScoreFunctions = () => {
-  const [answers, setAnswers] = useState([])
-  const [score, setScore] = useState(0);
-  const scoreUp = () => {
-    setScore(score + 1);
+  const [answers, setAnswers] = useState({})
+  //const [score, setScore] = useState(0);
+
+  const updateAnswers = (questionId, choiceId) => {
+    const newAnswers = { ...answers };
+    const isCorrect = questions.find(q => q.id === questionId).correctAnswers === choiceId;
+    newAnswers[questionId] = { choiceId, isCorrect }
+    setAnswers(newAnswers)
   }
-  const scoreDown = () => {
-    setScore(score - 1);
-  }
-  const updateAnswers = (answer) => {
-    setAnswers([...answers, answer])
+  let score = 0;
+
+  const checkAnswers = () => {
+    Object.keys(answers).map(ans => {
+      if (answers[ans].isCorrect) {
+        score++;
+      }
+    })
+    console.log(score)
+    setAnswers({})
   }
   return {
     score,
-    scoreUp,
-    scoreDown,
     answers,
     updateAnswers,
+    checkAnswers
   }
 
 }
