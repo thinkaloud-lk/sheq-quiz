@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
 
 import Choice from '../Choice'
 
-const Answers = ({ choices, questionId }) => {
+const choices = ({ choices, questionId }) => {
   return (
     <div
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', flex: 1, marginTop: 20 }}
@@ -18,4 +16,4 @@ const Answers = ({ choices, questionId }) => {
   )
 }
 
-export default Answers;
+export default choices;

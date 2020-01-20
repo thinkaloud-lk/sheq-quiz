@@ -1,3 +1,45 @@
+export const userData = [
+  {
+    id: 1,
+    label: 'CMES',
+    choices: [
+      {
+        id: 11,
+        label: 'Ravindu'
+      },
+      {
+        id: 12,
+        label: 'Dinesh'
+      },
+    ]
+  },
+  {
+    id: 2,
+    label: 'HC',
+    choices: [
+      {
+        id: 21,
+        label: 'Palinda'
+      },
+      {
+        id: 12,
+        label: 'Kapila'
+      },
+    ]
+  },
+  {
+    id: 3,
+    label: 'SHEQ',
+    choices: [
+      {
+        id: 31,
+        label: 'Sanjeewi'
+      }
+    ]
+  },
+
+]
+
 export const questions = [
   {
     id: 1,
