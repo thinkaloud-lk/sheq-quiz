@@ -11,7 +11,7 @@ import firebase from './useFirebase';
 
 const firebaseContext = createContext();
 
-const firebaseAuthFunctions = () => {
+const FirebaseAuthFunctions = () => {
   const [state, setState] = useState(() => {
     const user = firebase.auth().currentUser;
     return {
@@ -20,6 +20,16 @@ const firebaseAuthFunctions = () => {
       error: {},
     };
   });
+
+  const signInAnonymously = () => (
+    firebase.auth().signInAnonymously().catch(function (error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // ...
+    })
+  )
+
   const signin = (email, password) => (
     firebase.auth()
       .signInWithEmailAndPassword(email, password)
@@ -41,6 +51,7 @@ const firebaseAuthFunctions = () => {
     return () => unsubscribe();
   }, []);
   return {
+    signInAnonymously,
     signin,
     signup,
     signout,
@@ -52,7 +63,7 @@ const firebaseAuthFunctions = () => {
 
 export function FirebaseAuthProvider({ children }) {
   return (
-    <firebaseContext.Provider value={firebaseAuthFunctions()}>{children}</firebaseContext.Provider>
+    <firebaseContext.Provider value={FirebaseAuthFunctions()}>{children}</firebaseContext.Provider>
   );
 }
 
@@ -63,3 +74,7 @@ export const useAuth = () => (
 FirebaseAuthProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
+export {
+  FirebaseAuthFunctions
+}

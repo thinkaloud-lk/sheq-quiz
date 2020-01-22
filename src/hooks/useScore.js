@@ -1,33 +1,42 @@
 import { useState, useContext } from 'react';
 import React from 'react';
-import { questions } from '../models/mock';
-import { useFirestoreCollection } from './useFirestore';
-
+import useQuestions from './useQuestions'
+import firebase from './useFirebase';
+import { questions as sampleQuestions } from '../models/mock';
 const scoreContext = React.createContext();
 
 const ScoreFunctions = () => {
   const [timesUp, setTimesUp] = useState(false);
   const [user, setUser] = useState(null);
   const [answers, setAnswers] = useState({});
-  const [unAnswered, setUnanswered] = useState(questions.length);
   const [score, setScore] = useState(0);
+  const [results, setResults] = useState(null);
 
-  const { data, loading } = useFirestoreCollection('questions')
+  const { questions } = useQuestions()
 
   const updateAnswers = (questionId, choiceId) => {
     const newAnswers = { ...answers };
-    const isCorrect = data.find(q => q.id === questionId).correctAnswers === choiceId;
+    const isCorrect = questions.find(q => q.id === questionId).correctAnswers === choiceId;
     newAnswers[questionId] = { choiceId, isCorrect }
     setAnswers(newAnswers)
-    updateUnanswered()
   }
 
-  const updateUnanswered = () => {
-    const newUnAnswered = data.length - Object.keys(answers);
-    setUnanswered(newUnAnswered);
+  const getFinalResults = () => {
+    let resultsArr = [];
+    firebase.firestore().collection('departments').get()
+      .then(snapshot => snapshot.forEach(doc => {
+        const { label, scores } = doc.data();
+        const score = scores && (scores.reduce((p, c) => p + c, 0) / scores.length).toFixed(2)
+        resultsArr.push({ label, score, totalUsers: scores.length })
+      }))
+    setResults(resultsArr);
   }
 
-  const checkAnswers = () => {
+  const updateFinalScore = () => {
+
+  }
+
+  const submitUserAnswers = () => {
     let currentScore = 0;
     Object.keys(answers).map(ans => {
       if (answers[ans].isCorrect) {
@@ -35,18 +44,44 @@ const ScoreFunctions = () => {
       }
     })
     setScore(currentScore);
+    firebase.firestore().collection('users').doc(user.userId).update({
+      score: currentScore,
+    })
+      .then(() => firebase.firestore().collection('departments').doc(user.department).update({
+        scores: firebase.firestore.FieldValue.arrayUnion(currentScore)
+      }))
   }
+
+  const setQuestions = () => {
+    sampleQuestions.map(q =>
+      firebase.firestore().collection('questions').add(q))
+  }
+
+  const addNewUser = (department, userName) => {
+    firebase.firestore().collection('users').add({
+      department,
+      name: userName,
+      //user created at,
+    })
+      .then((data) => {
+        setUser({ department, name: userName, userId: data.id })
+      })
+  }
+
   return {
     user,
     setUser,
+    questions,
+    setQuestions,
+    addNewUser,
+    getFinalResults,
+    submitUserAnswers,
+    results,
     score,
-    data,
     timesUp,
     setTimesUp,
-    answers,
-    unAnswered,
     updateAnswers,
-    checkAnswers
+    answers,
   }
 }
 

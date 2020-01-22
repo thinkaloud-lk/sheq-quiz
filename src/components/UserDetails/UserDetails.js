@@ -7,19 +7,19 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 import { useScore } from '../../hooks/useScore';
 
-const UserDetails = ({ question, selectedDepartment, selectedName }) => {
+const UserDetails = ({ }) => {
   const { id, choices, label, type } = question;
-  const { user, setUser, department, setDepartment } = useScore();
+  const { user, setUser, departmentMembers } = useScore();
   return (
     <div>
-      <Typography variant="h6" style={{ color: 'white' }}>
+      <Typography variant="h6" style={{ color: 'black' }}>
         {label}
       </Typography>
       <div
         style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', flex: 1, marginTop: 20 }}
       >
         {
-          choices.map((choice) => (
+          choices && choices.map((choice) => (
             <Button
               variant="text" style={{ width: '100%', backgroundColor: (type === 'department' ? selectedDepartment === choice.id : selectedName === choice.id) ? '#009688' : '' }}
               onClick={() => setUser({ ...user, [type]: choice.id })}

@@ -5,12 +5,14 @@ import Choice from '../Choice'
 const choices = ({ choices, questionId }) => {
   return (
     <div
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', flex: 1, marginTop: 20 }}
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', marginTop: 20 }}
     >
       {
-        choices.map((choice) => (
-          <Choice key={choice.id} choice={choice} questionId={questionId} />
-        ))
+        choices && choices.map((choice) => {
+          return (
+            <Choice key={choice.id} choice={choice} questionId={questionId} />
+          )
+        })
       }
     </div>
   )

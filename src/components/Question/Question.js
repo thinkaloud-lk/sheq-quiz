@@ -4,10 +4,9 @@ import Choices from '../Choices';
 
 const Question = ({ question }) => {
   const { id, choices, label } = question;
-  const [isCorrect, setIsCorrect] = useState(false);
   return (
-    <div>
-      <Typography variant="h6" style={{ color: 'white' }}>
+    <div style={{ padding: 20 }}>
+      <Typography variant="h6" align="center" style={{ color: '#1b5e20' }}>
         {label}
       </Typography>
       <Choices choices={choices} questionId={id} />
