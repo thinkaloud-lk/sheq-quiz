@@ -2,17 +2,17 @@ import { useState, useContext } from 'react';
 import React from 'react';
 import useQuestions from './useQuestions'
 import firebase from './useFirebase';
-import { questions as sampleQuestions } from '../models/mock';
-const scoreContext = React.createContext();
+import { finalQuestions as sampleQuestions, departments, users } from '../models/mock';
+import { useQuiz } from './useQuiz'
 
+const scoreContext = React.createContext();
 const ScoreFunctions = () => {
   const [timesUp, setTimesUp] = useState(false);
-  const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(0);
-  const [results, setResults] = useState(null);
-
   const { questions } = useQuestions()
+  const { quizId } = useQuiz();
 
   const updateAnswers = (questionId, choiceId) => {
     const newAnswers = { ...answers };
@@ -24,16 +24,26 @@ const ScoreFunctions = () => {
   const getFinalResults = () => {
     let resultsArr = [];
     firebase.firestore().collection('departments').get()
-      .then(snapshot => snapshot.forEach(doc => {
-        const { label, scores } = doc.data();
-        const score = scores && (scores.reduce((p, c) => p + c, 0) / scores.length).toFixed(2)
-        resultsArr.push({ label, score, totalUsers: scores.length })
-      }))
-    setResults(resultsArr);
-  }
-
-  const updateFinalScore = () => {
-
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          const { id, label, score, totalUsers, totalParticipated } = doc.data();
+          resultsArr.push({ id, label, score, userUtil: (totalParticipated / totalUsers).toFixed(2) })
+        })
+      })
+      .then(() => {
+        let winningDept;
+        const scores = resultsArr.map(r => r.score);
+        const highestScore = Math.max(...scores);
+        const deptsWithHighScores = resultsArr.filter(r => r.score === highestScore)
+        if (deptsWithHighScores.length > 1) {
+          winningDept = deptsWithHighScores.reduce((prev, current) => prev.userUtil > current.userUtil ? prev : current)
+        } else {
+          winningDept = deptsWithHighScores[0]
+        }
+        firebase.firestore().collection('quizes').doc(quizId).update({
+          winningDept
+        })
+      })
   }
 
   const submitUserAnswers = () => {
@@ -44,12 +54,23 @@ const ScoreFunctions = () => {
       }
     })
     setScore(currentScore);
-    firebase.firestore().collection('users').doc(user.userId).update({
-      score: currentScore,
-    })
-      .then(() => firebase.firestore().collection('departments').doc(user.department).update({
-        scores: firebase.firestore.FieldValue.arrayUnion(currentScore)
+    const deptRef = firebase.firestore().collection('departments').doc(currentUser.department)
+    deptRef.get()
+      .then(doc => {
+        const deptScore = doc.data().score;
+        const deptParticipated = doc.data().totalParticipated
+        deptRef.update({
+          score: deptScore + currentScore,
+          totalParticipated: deptParticipated + 1,
+        })
+      })
+      .then(() => firebase.firestore().collection('users').doc(currentUser.userId).update({
+        score: currentScore,
+        status: 'COMPLETED',
+        completedAt: new Date().toISOString()
       }))
+      .finally(() => { setCurrentUser(null) })
+      .catch(err => console.log(err))
   }
 
   const setQuestions = () => {
@@ -57,26 +78,45 @@ const ScoreFunctions = () => {
       firebase.firestore().collection('questions').add(q))
   }
 
-  const addNewUser = (department, userName) => {
-    firebase.firestore().collection('users').add({
-      department,
-      name: userName,
-      //user created at,
+  const setUsers = () => {
+    users.map(u =>
+      firebase.firestore().collection('users').add(u))
+  }
+
+  const setDepartments = () => {
+    departments.map(d =>
+      firebase.firestore().collection('departments').doc(d.id).set({
+        ...d
+      }))
+  }
+
+  const loginUser = (userId, name, department) => {
+    const userRef = firebase.firestore().collection('users').doc(userId);
+    userRef.update({
+      loggedIn: new Date().toISOString(),
     })
-      .then((data) => {
-        setUser({ department, name: userName, userId: data.id })
-      })
+      .then(() => setCurrentUser({ userId, name, department }))
+  }
+
+  const startQuiz = (userId) => {
+    firebase.firestore().collection('users').doc(userId).update({
+      startedAt: new Date().toISOString(),
+      status: 'STARTED'
+    })
   }
 
   return {
-    user,
-    setUser,
+    currentUser,
+    setCurrentUser,
     questions,
     setQuestions,
-    addNewUser,
+    setDepartments,
+    setUsers,
+    loginUser,
+    setAnswers,
+    startQuiz,
     getFinalResults,
     submitUserAnswers,
-    results,
     score,
     timesUp,
     setTimesUp,

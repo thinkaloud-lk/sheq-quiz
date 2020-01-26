@@ -7,10 +7,11 @@ import React, {
 import firebase from './useFirebase';
 
 const useDepartments = () => {
-  const [users, setQuestions] = useState([]);
-  const [departments, setDepartments] = useState([]);
+  const [departments, setDepartments] = useState(null);
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [currentUser, setCurrentUser] = useState(false);
+
   useEffect(() => {
     const collectionRef = firebase.firestore().collection('departments')
     const departmentsArr = [];
@@ -30,19 +31,16 @@ const useDepartments = () => {
     return () => unsubscribe();
   }, []);
 
-  //   const getDepartmentUsers = () => {
-  //     const collectionRef = firebase.firestore().collection('users').where('department', '==', departmentId)
-  //     const usersArr = [];
-  //     return collectionRef.get().th
-
-  // }
-
-
-
+  const getDepartmentUsers = (departmentId) => {
+    const collectionRef = firebase.firestore().collection('users').where('department', '==', departmentId)
+    const usersArr = [];
+    return collectionRef.get()
+  }
 
   return {
     departments,
     loading,
+    getDepartmentUsers,
     error,
   }
 }

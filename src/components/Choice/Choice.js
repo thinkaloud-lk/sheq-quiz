@@ -8,7 +8,6 @@ import { useScore } from '../../hooks/useScore';
 
 const Choice = ({ choice, questionId }) => {
   const { label, id } = choice;
-  console.log('cho', label)
   const { user, setUser, answers, updateAnswers } = useScore();
   const givenAnswer = answers[questionId] && answers[questionId].choiceId;
 

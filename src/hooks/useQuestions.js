@@ -13,7 +13,7 @@ const useQuestions = () => {
   useEffect(() => {
     const collectionRef = firebase.firestore().collection('questions')
     const questionsArr = [];
-    const unsubscribe = collectionRef.onSnapshot(
+    const unsubscribe = collectionRef.orderBy("id", "asc").onSnapshot(
       (snapshot) => {
         snapshot.forEach((question) => {
           questionsArr.push({ ...question.data(), id: question.id })

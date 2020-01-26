@@ -6,16 +6,16 @@ import React, {
 } from 'react';
 import firebase from './useFirebase';
 
+
 const useUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-
   useEffect(() => {
     const collectionRef = firebase.firestore().collection('users')
-    const usersArr = [];
     const unsubscribe = collectionRef.onSnapshot(
       (snapshot) => {
+        const usersArr = [];
         snapshot.forEach((user) => {
           usersArr.push({ ...user.data(), id: user.id })
         });
@@ -29,8 +29,6 @@ const useUsers = () => {
     );
     return () => unsubscribe();
   }, []);
-
-
   return {
     users,
     loading,

@@ -11,20 +11,10 @@ import { useScore } from '../../hooks/useScore';
 const Result = ({ }) => {
   const { answers } = useScore();
   const { questions, loading } = useQuestions();
+  const { score } = useScore();
   return (
     <div>
-      {
-        questions.map(question => {
-          return (
-            <Button
-              variant="text" style={{ width: '100%', backgroundColor: answers[question.id] && answers[question.id].isCorrect ? '#009688' : 'red' }}
-              onClick={() => { }}
-            >
-              <Typography variant="p" align="left" >{question.id}</Typography>
-            </Button>
-          )
-        })}
-      }
+      <Typography variant="h6" align="center" style={{ color: '#1b5e20' }}>Your score {score}</Typography>
     </div >
   )
 }

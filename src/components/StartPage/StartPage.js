@@ -4,6 +4,7 @@ import ReactCountdownClock from 'react-countdown-clock';
 import { makeStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
@@ -52,33 +53,17 @@ const QuizIntroPage = ({ history }) => {
 
   return (
     <Layout>
-      {
-        currentUser ? (
-          <Container className={classes.root}>
-            <img src={logo} width="250" className={classes.image} />
-            <Typography variant="h4" align="center" style={{ color: '#1b5e20', marginBottom: 20 }}>Welcome {currentUser.name} </Typography>
-            <Container>
-              {
-                instructions.map(i => <Typography variant="h6" align="center" style={{ color: '#1b5e20', marginBottom: 10 }}>{i.label}</Typography>)
-              }
-            </Container>
-            <Container style={{ width: '60%' }}>
-              <Button size="large"
-                disabled={!currentUser}
-                fullWidth
-                variant="contained"
-                style={{ backgroundColor: '#f57f17', color: 'white', marginTop: 20 }}
-                onClick={() => {
-                  startQuiz(currentUser.userId)
-                  history.push("/quiz")
-                }}>
-                Let's Go
-          </Button>
-            </Container>
-          </Container>
-        ) :
-          <Container><p>loading</p></Container>
-      }
+      <Container className={classes.root}>
+        <img src={logo} width="250" className={classes.image} />
+        <Typography variant="h4" align="center" style={{ color: '#1b5e20', marginBottom: 20 }}>Quiz will start soon </Typography>
+        <Container>
+          <Paper elevation={5} style={{ padding: 10, borderRadius: 10 }}>
+            {
+              instructions.map(i => <Typography variant="h6" align="center" style={{ color: '#1b5e20', marginBottom: 10 }}>{i.label}</Typography>)
+            }
+          </Paper>
+        </Container>
+      </Container>
     </Layout>
   );
 }
